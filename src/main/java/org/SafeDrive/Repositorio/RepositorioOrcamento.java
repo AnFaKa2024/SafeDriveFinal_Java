@@ -15,13 +15,14 @@ public class RepositorioOrcamento implements RepositorioGenerico<Orcamento> {
 
     @Override
     public void adicionar(Orcamento orcamento) {
-        String sql = "INSERT INTO T_ORCAMENTO (mao_de_obra, pecas) VALUES (?, ?)";
+        String sql = "INSERT INTO T_ORCAMENTO (mao_de_obra, pecas, tipo_orcamento) VALUES (?, ?, ?)";
 
         try (Connection conexao = ConexaoBanco.getConnection();
              PreparedStatement stmt = conexao.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             stmt.setDouble(1, orcamento.getMaoDeObra());
             stmt.setDouble(2, orcamento.getPecas());
+            stmt.setString(3, orcamento.getTipo());
 
             stmt.executeUpdate();
 
@@ -38,14 +39,15 @@ public class RepositorioOrcamento implements RepositorioGenerico<Orcamento> {
 
     @Override
     public void atualizar(Orcamento orcamento) {
-        String sql = "UPDATE T_ORCAMENTO SET mao_de_obra = ?, pecas = ? WHERE id = ?";
+        String sql = "UPDATE T_ORCAMENTO SET mao_de_obra = ?, pecas = ?, tipo_orcamento = ? WHERE id = ?";
 
         try (Connection conexao = ConexaoBanco.getConnection();
              PreparedStatement stmt = conexao.prepareStatement(sql)) {
 
             stmt.setDouble(1, orcamento.getMaoDeObra());
             stmt.setDouble(2, orcamento.getPecas());
-            stmt.setInt(3, orcamento.getId());
+            stmt.setString(3, orcamento.getTipo());
+            stmt.setInt(4, orcamento.getId());
 
             stmt.executeUpdate();
             logger.info("Orçamento atualizado: ID " + orcamento.getId());
@@ -81,8 +83,11 @@ public class RepositorioOrcamento implements RepositorioGenerico<Orcamento> {
             if (rs.next()) {
                 return new Orcamento(
                         id,
+                        rs.getBoolean("deletado"),
                         rs.getDouble("mao_de_obra"),
-                        rs.getDouble("pecas")
+                        rs.getDouble("pecas"),
+                        null,
+                        rs.getString("tipo_orcamento")
                 );
             }
         } catch (SQLException e) {
@@ -103,8 +108,11 @@ public class RepositorioOrcamento implements RepositorioGenerico<Orcamento> {
             while (rs.next()) {
                 Orcamento orcamento = new Orcamento(
                         rs.getInt("id"),
+                        rs.getBoolean("deletado"),
                         rs.getDouble("mao_de_obra"),
-                        rs.getDouble("pecas")
+                        rs.getDouble("pecas"),
+                        null,
+                        rs.getString("tipo_orcamento")
                 );
                 orcamentos.add(orcamento);
             }

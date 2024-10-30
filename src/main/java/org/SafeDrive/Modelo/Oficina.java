@@ -47,12 +47,12 @@ public class Oficina extends EntidadeBase {
     private String nomeProprietario;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Geração automática de ID
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     public Oficina() {}
 
-    public Oficina(Login login, String cnpj, String telefone, List<Endereco> enderecos, // Alterado para List<Endereco>
+    public Oficina(Login login, String cnpj, String telefone, List<Endereco> enderecos,
                    String nomeOficina, String especialidade, String orcamento, String nomeProprietario) {
         this.login = login;
         this.cnpj = cnpj;

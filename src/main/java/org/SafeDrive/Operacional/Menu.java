@@ -14,6 +14,7 @@ public class Menu {
             System.out.println("2. Oficina");
             System.out.println("0. Sair");
 
+            System.out.println("Opção: ");
             int mainOption = scanner.nextInt();
             scanner.nextLine();
 

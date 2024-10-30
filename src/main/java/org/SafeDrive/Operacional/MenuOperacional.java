@@ -1,11 +1,9 @@
 package org.SafeDrive.Operacional;
 
-import org.SafeDrive.Modelo.Mecanico;
 import org.SafeDrive.Modelo.Oficina;
 import org.SafeDrive.Modelo.Usuario;
 import org.SafeDrive.Modelo.Login;
 import org.SafeDrive.Repositorio.RepositorioLogin;
-import org.SafeDrive.Repositorio.RepositorioMecanico;
 import org.SafeDrive.Repositorio.RepositorioOficina;
 import org.SafeDrive.Repositorio.RepositorioUsuario;
 import org.apache.logging.log4j.LogManager;
@@ -19,7 +17,6 @@ public class MenuOperacional {
     private Scanner scanner;
     private RepositorioUsuario repositorioUsuario;
     private RepositorioOficina repositorioOficina;
-    private RepositorioMecanico repositorioMecanico;
 
     private static final Logger logger = LogManager.getLogger(MenuOperacional.class);
 
@@ -210,18 +207,4 @@ public class MenuOperacional {
         }
     }
 
-    private void cadastrarMecanico(){
-        System.out.println("\n--- Cadastrar Mecanico ---");
-
-        System.out.println("Nome Completo: ");
-        String nome = scanner.nextLine();
-
-        System.out.println("CPF: ");
-        String cpf = scanner.nextLine();
-
-        repositorioMecanico.adicionar(new Mecanico(nome, cpf));
-        System.out.println("Mecanico cadastrado com sucesso!");
-        logger.info("Mecanico cadastrado! " + nome + " (CPF: " + cpf + ")");
-
-    }
 }

@@ -22,17 +22,35 @@ public class Orcamento extends EntidadeBase {
     @OneToOne
     @JoinColumn(name = "id_oficina", referencedColumnName = "id_oficina")
     private Oficina oficina;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_orcamento", nullable = false)
+    private String tipo;
+
     @Id
     private int id;
 
-    public Orcamento(int id, double maoDeObra, double pecas) {
+    public Orcamento() {
     }
 
-    public Orcamento() {
+    public Orcamento(int id, boolean deletado, double maoDeObra, Double pecas, double total, Oficina oficina,
+                     String tipo, int id1) {
+        super(id, deletado);
         this.maoDeObra = maoDeObra;
         this.pecas = pecas;
+        this.total = total;
         this.oficina = oficina;
-        this.total = calcularTotal();
+        this.tipo = tipo;
+        this.id = id1;
+    }
+
+    public Orcamento(double maoDeObra, Double pecas, double total, Oficina oficina, String tipo, int id) {
+        this.maoDeObra = maoDeObra;
+        this.pecas = pecas;
+        this.total = total;
+        this.oficina = oficina;
+        this.tipo = tipo;
+        this.id = id;
     }
 
     public Orcamento(int id, boolean deletado, double maoDeObra, Double pecas, Oficina oficina) {
@@ -41,6 +59,9 @@ public class Orcamento extends EntidadeBase {
         this.pecas = pecas;
         this.oficina = oficina;
         this.total = calcularTotal();
+    }
+
+    public Orcamento(int id, boolean deletado, double maoDeObra, double pecas, Object tipo, String tipoOrcamento) {
     }
 
     public double getMaoDeObra() {
@@ -59,6 +80,18 @@ public class Orcamento extends EntidadeBase {
     public void setPecas(Double pecas) {
         this.pecas = pecas;
         this.total = calcularTotal();
+    }
+
+    public void setTotal(double total) {
+        this.total = total;
+    }
+
+    public String getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
     }
 
     public double getTotal() {
@@ -86,8 +119,10 @@ public class Orcamento extends EntidadeBase {
                 ", pecas=" + pecas +
                 ", total=" + total +
                 ", oficina=" + (oficina != null ? oficina.getNomeOficina() : "N/A") +
+                ", tipo=" + tipo +
                 '}';
     }
+
 
     @Override
     public boolean equals(Object o) {
