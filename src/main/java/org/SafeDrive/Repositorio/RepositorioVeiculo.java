@@ -14,8 +14,8 @@ public class RepositorioVeiculo implements RepositorioGenerico<Veiculo> {
     private static final Logger logger = LogManager.getLogger(RepositorioVeiculo.class);
 
     @Override
-    public void adicionar(Veiculo veiculo) {
-        String sql = "INSERT INTO T_VEICULO (tipo_veiculo, marca, modelo, placa, ano_fabricacao, qtd_eixo, tem_seguro, numero_seguro) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    public int adicionar(Veiculo veiculo) {
+        String sql = "INSERT INTO T_FGK_VEICULO (tipo_veiculo, marca, modelo, placa, ano_fabricacao, qtd_eixo, tem_seguro, numero_seguro) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conexao = ConexaoBanco.getConnection();
              PreparedStatement stmt = conexao.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -40,11 +40,12 @@ public class RepositorioVeiculo implements RepositorioGenerico<Veiculo> {
         } catch (SQLException e) {
             logger.error("Erro ao adicionar veículo: " + e.getMessage());
         }
+        return 0;
     }
 
     @Override
     public void atualizar(Veiculo veiculo) {
-        String sql = "UPDATE T_VEICULO SET tipo_veiculo = ?, marca = ?, modelo = ?, placa = ?, ano_fabricacao = ?, qtd_eixo = ?, tem_seguro = ?, numero_seguro = ? WHERE id = ?";
+        String sql = "UPDATE T_FGK_VEICULO SET tipo_veiculo = ?, marca = ?, modelo = ?, placa = ?, ano_fabricacao = ?, qtd_eixo = ?, tem_seguro = ?, numero_seguro = ? WHERE id = ?";
 
         try (Connection conexao = ConexaoBanco.getConnection();
              PreparedStatement stmt = conexao.prepareStatement(sql)) {
@@ -68,7 +69,7 @@ public class RepositorioVeiculo implements RepositorioGenerico<Veiculo> {
 
     @Override
     public void remover(int id) {
-        String sql = "DELETE FROM T_VEICULO WHERE id = ?";
+        String sql = "DELETE FROM T_FGK_VEICULO WHERE id = ?";
 
         try (Connection conexao = ConexaoBanco.getConnection();
              PreparedStatement stmt = conexao.prepareStatement(sql)) {
@@ -83,7 +84,7 @@ public class RepositorioVeiculo implements RepositorioGenerico<Veiculo> {
 
     @Override
     public Veiculo buscarPorId(int id) {
-        String sql = "SELECT * FROM T_VEICULO WHERE id = ?";
+        String sql = "SELECT * FROM T_FGK_VEICULO WHERE id = ?";
         try (Connection conexao = ConexaoBanco.getConnection();
              PreparedStatement stmt = conexao.prepareStatement(sql)) {
 
@@ -113,7 +114,7 @@ public class RepositorioVeiculo implements RepositorioGenerico<Veiculo> {
     @Override
     public List<Veiculo> listar() {
         List<Veiculo> veiculos = new ArrayList<>();
-        String sql = "SELECT * FROM T_VEICULO";
+        String sql = "SELECT * FROM T_FGK_VEICULO";
 
         try (Connection conexao = ConexaoBanco.getConnection();
              PreparedStatement stmt = conexao.prepareStatement(sql);

@@ -8,9 +8,10 @@ import java.time.LocalDate;
 import java.util.Objects;
 
 @Entity
-@Table(name = "T_SafeDrive_VEICULO")
+@Table(name = "T_FGK_VEICULO")
 public class Veiculo extends EntidadeBase {
 
+    @Enumerated(EnumType.STRING)
     @NotBlank(message = "O tipo de veículo é obrigatório.")
     @Column(name = "tipo_veiculo", nullable = false)
     private String tipoVeiculo;
@@ -41,28 +42,18 @@ public class Veiculo extends EntidadeBase {
 
     @Column(name = "numero_seguro")
     private String numeroSeguro;
+
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    public Veiculo() {
+    public Veiculo(int id, boolean b, String tipoVeiculo, String marca, String modelo, String placa, LocalDate anoFabricacao, int qtdEixo, boolean temSeguro, String numeroSeguro) {
     }
+
+    public Veiculo() {}
 
     public Veiculo(String tipoVeiculo, String marca, String modelo, String placa,
                    LocalDate anoFabricacao, int qtdEixo, boolean temSeguro, String numeroSeguro) {
-        this.tipoVeiculo = tipoVeiculo;
-        this.marca = marca;
-        this.modelo = modelo;
-        this.placa = placa;
-        this.anoFabricacao = anoFabricacao;
-        this.qtdEixo = qtdEixo;
-        this.temSeguro = temSeguro;
-        this.numeroSeguro = numeroSeguro;
-    }
-
-    public Veiculo(int id, boolean deletado, String tipoVeiculo, String marca, String modelo,
-                   String placa, LocalDate anoFabricacao, int qtdEixo, boolean temSeguro,
-                   String numeroSeguro) {
-        super(id, deletado);
         this.tipoVeiculo = tipoVeiculo;
         this.marca = marca;
         this.modelo = modelo;
@@ -137,10 +128,18 @@ public class Veiculo extends EntidadeBase {
         this.numeroSeguro = numeroSeguro;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
     @Override
     public String toString() {
         return "Veiculo{" +
-                "tipoVeiculo='" + tipoVeiculo + '\'' +
+                "tipoVeiculo=" + tipoVeiculo +
                 ", marca='" + marca + '\'' +
                 ", modelo='" + modelo + '\'' +
                 ", placa='" + placa + '\'' +
@@ -160,7 +159,7 @@ public class Veiculo extends EntidadeBase {
         Veiculo veiculo = (Veiculo) o;
         return qtdEixo == veiculo.qtdEixo &&
                 temSeguro == veiculo.temSeguro &&
-                Objects.equals(tipoVeiculo, veiculo.tipoVeiculo) &&
+                tipoVeiculo == veiculo.tipoVeiculo &&
                 Objects.equals(marca, veiculo.marca) &&
                 Objects.equals(modelo, veiculo.modelo) &&
                 Objects.equals(placa, veiculo.placa) &&
@@ -171,13 +170,5 @@ public class Veiculo extends EntidadeBase {
     @Override
     public int hashCode() {
         return Objects.hash(tipoVeiculo, marca, modelo, placa, anoFabricacao, qtdEixo, temSeguro, numeroSeguro);
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public int getId() {
-        return id;
     }
 }

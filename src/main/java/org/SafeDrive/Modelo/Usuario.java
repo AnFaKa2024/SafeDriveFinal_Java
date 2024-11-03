@@ -2,88 +2,85 @@ package org.SafeDrive.Modelo;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
-import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+@Entity
+@Table(name = "T_FGK_USUARIO")
 public class Usuario extends EntidadeBase {
 
     @NotBlank(message = "O CPF é obrigatório.")
     @Size(min = 11, max = 15, message = "O CPF deve ter entre 11 e 15 caracteres.")
+    @Column(name = "cpf", nullable = false, unique = true)
     private String cpf;
 
     @NotBlank(message = "A CNH é obrigatória.")
     @Size(min = 11, max = 15, message = "A CNH deve ter entre 11 e 15 caracteres.")
+    @Column(name = "cnh", nullable = false, unique = true)
     private String cnh;
 
     @NotBlank(message = "O nome do usuário é obrigatório.")
     @Size(max = 90, message = "O nome deve ter no máximo 90 caracteres.")
+    @Column(name = "nome_usuario", nullable = false)
     private String nomeUsuario;
 
-    @Pattern(regexp = "feminino|masculino|indefinido", message = "O gênero deve ser feminino, masculino ou indefinido.")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "genero")
     private String genero;
 
-    @ElementCollection
-    @CollectionTable(name = "T_SafeDrive_ENDERECO", joinColumns = @JoinColumn(name = "id_usuario"))
-    @Column(name = "endereco", nullable = false)
-    @NotNull(message = "A lista de endereços não pode ser nula.")
-    @OneToMany(mappedBy = "usuario")
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Endereco> enderecos = new ArrayList<>();
 
+    @Column(name = "telefone")
     private String telefone;
 
     @Past(message = "A data de nascimento deve estar no passado.")
+    @Column(name = "data_nascimento")
     private LocalDate dataNascimento;
 
+    @ManyToOne
+    @JoinColumn(name = "login_id", nullable = false)
     private Login login;
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    public Usuario() {
-    }
-
-    public Usuario(int id, boolean deletado, String cpf, String cnh, String nomeUsuario, String genero,
-                   List<Endereco> enderecos, String telefone, LocalDate dataNascimento, Login login) {
-        super(id, deletado);
-        this.cpf = cpf;
-        this.cnh = cnh;
-        this.nomeUsuario = nomeUsuario;
-        this.genero = genero;
-        this.enderecos = enderecos != null ? enderecos : new ArrayList<>();
-        this.telefone = telefone;
-        this.dataNascimento = dataNascimento;
-        this.login = login;
-    }
-
-    public Usuario(String cpf, String cnh, String nomeUsuario, String genero,
-                   List<Endereco> enderecos, String telefone, LocalDate dataNascimento, Login login) {
-        this.cpf = cpf;
-        this.cnh = cnh;
-        this.nomeUsuario = nomeUsuario;
-        this.genero = genero;
-        this.enderecos = enderecos != null ? enderecos : new ArrayList<>();
-        this.telefone = telefone;
-        this.dataNascimento = dataNascimento;
-        this.login = login;
-    }
-
-    public Usuario(int id, boolean deletado, Login loginId, String cpf, String telefone, List<Endereco> enderecos,
-                   String nomeUsuario, LocalDate dataNascimento, String cnh, List<Veiculo> veiculos) {
+    public Usuario(int id, boolean b, Login idLogin, String cpf, String telefone, List<Endereco> enderecos, String
+            nmUsuario, LocalDate dtNascimento, String cnh, List<Veiculo> veiculos) {
         this.id = id;
-        this.deletado = deletado;
-        this.login = loginId;
+        this.cpf = cpf;
+        this.cnh = cnh;
+        this.dataNascimento = dtNascimento;
+        this.login = idLogin;
+        this.enderecos = enderecos;
+        this.telefone = telefone;
+        this.enderecos.addAll(this.enderecos);
+    }
+
+    public Usuario(String cpf, String cnh, String nmUsuario, String genero, String telefone, LocalDate dtNascimento, Login login) {
+    }
+
+    public Usuario(String nomeUsuario, String cpf, String cnh, String genero, String telefone, LocalDate dataNascimento, int loginId, int enderecoId) {
+    }
+
+    public enum Genero {
+        FEMININO, MASCULINO, INDEFINIDO
+    }
+
+    public Usuario() {}
+
+    public Usuario(String cpf, String cnh, String nomeUsuario, String genero, List<Endereco> enderecos, String telefone, LocalDate dataNascimento, Login login) {
         this.cpf = cpf;
         this.cnh = cnh;
         this.nomeUsuario = nomeUsuario;
+        this.genero = genero;
         this.enderecos = enderecos != null ? enderecos : new ArrayList<>();
         this.telefone = telefone;
         this.dataNascimento = dataNascimento;
-    }
-
-    public Usuario(String cpf, String cnh, String nmUsuario, String genero, String telefone, Date dtNascimento, Login login) {
+        this.login = login;
     }
 
     public String getCpf() {
@@ -123,11 +120,7 @@ public class Usuario extends EntidadeBase {
     }
 
     public void setEnderecos(List<Endereco> enderecos) {
-        if (enderecos != null && !enderecos.isEmpty()) {
-            this.enderecos = enderecos;
-        } else {
-            throw new IllegalArgumentException("A lista de endereços não pode ser nula ou vazia.");
-        }
+        this.enderecos = enderecos != null ? enderecos : new ArrayList<>();
     }
 
     public String getTelefone() {
@@ -154,12 +147,12 @@ public class Usuario extends EntidadeBase {
         this.login = login;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public int getId() {
         return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     @Override

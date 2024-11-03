@@ -127,7 +127,6 @@
             <version>3.0.2</version> <!-- Verifique a última versão disponível -->
         </dependency>
 
-
     </dependencies>
 
     <build>

@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Entity
-@Table(name = "T_SafeDrive_OFICINA")
+@Table(name = "T_FGK_OFICINA")
 public class Oficina extends EntidadeBase {
 
     @OneToOne(cascade = CascadeType.ALL, optional = false)
@@ -24,12 +24,9 @@ public class Oficina extends EntidadeBase {
     @NotBlank(message = "O telefone é obrigatório.")
     private String telefone;
 
-    @CollectionTable(name = "T_SafeDrive_ENDERECO", joinColumns = @JoinColumn(name = "id_oficina"))
-    @Column(name = "endereco", nullable = false)
+    @OneToMany(mappedBy = "oficina", cascade = CascadeType.ALL, orphanRemoval = true)
     @NotNull(message = "A lista de endereços não pode ser nula.")
-    @OneToMany(mappedBy = "oficina")
     private List<Endereco> enderecos = new ArrayList<>();
-
 
     @Column(name = "nome_oficina", nullable = false)
     @NotBlank(message = "O nome da oficina é obrigatório.")
@@ -65,6 +62,14 @@ public class Oficina extends EntidadeBase {
     }
 
     public Oficina(String nomeOficina, String cnpj, String especialidade, String telefone, Login login) {
+        this.nomeOficina = nomeOficina;
+        this.cnpj = cnpj;
+        this.especialidade = especialidade;
+        this.telefone = telefone;
+        this.login = login;
+    }
+
+    public Oficina(Login login, String cnpj, String telefone, int idOficina, String nmOficina, String especialidade, int idLogin, String nomeProprietario) {
     }
 
     // Getters e Setters
@@ -96,11 +101,11 @@ public class Oficina extends EntidadeBase {
         this.telefone = telefone;
     }
 
-    public List<Endereco> getEnderecos() { // Alterado para List<Endereco>
+    public List<Endereco> getEnderecos() {
         return enderecos;
     }
 
-    public void setEnderecos(List<Endereco> enderecos) { // Alterado para List<Endereco>
+    public void setEnderecos(List<Endereco> enderecos) {
         if (enderecos != null && !enderecos.isEmpty()) {
             this.enderecos = enderecos;
         } else {
@@ -140,6 +145,14 @@ public class Oficina extends EntidadeBase {
         this.nomeProprietario = nomeProprietario;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
     @Override
     public String toString() {
         return "Oficina{" +
@@ -172,13 +185,5 @@ public class Oficina extends EntidadeBase {
     @Override
     public int hashCode() {
         return Objects.hash(login, cnpj, telefone, enderecos, nomeOficina, especialidade, orcamento, nomeProprietario);
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public int getId() {
-        return Math.toIntExact(id);
     }
 }

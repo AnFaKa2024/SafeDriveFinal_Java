@@ -1,22 +1,29 @@
 package org.SafeDrive.Operacional;
 
+import org.SafeDrive.Modelo.Endereco;
 import org.SafeDrive.Modelo.Oficina;
 import org.SafeDrive.Modelo.Usuario;
 import org.SafeDrive.Modelo.Login;
+import org.SafeDrive.Repositorio.RepositorioEndereco;
 import org.SafeDrive.Repositorio.RepositorioLogin;
 import org.SafeDrive.Repositorio.RepositorioOficina;
 import org.SafeDrive.Repositorio.RepositorioUsuario;
+import org.SafeDrive.Servico.ValidadorEntidades;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.Scanner;
 
 public class MenuOperacional {
 
     private String tipoAcesso;
-    private Scanner scanner;
-    private RepositorioUsuario repositorioUsuario;
-    private RepositorioOficina repositorioOficina;
+    private static Scanner scanner;
+    private static RepositorioLogin repositorioLogin = new RepositorioLogin();
+    private static RepositorioEndereco repositorioEndereco = new RepositorioEndereco();
+    private static RepositorioUsuario repositorioUsuario = new RepositorioUsuario();
+    private RepositorioOficina repositorioOficina = new RepositorioOficina();
 
     private static final Logger logger = LogManager.getLogger(MenuOperacional.class);
 
@@ -71,38 +78,80 @@ public class MenuOperacional {
         }
     }
 
-    private void criarUsuario() {
-        System.out.println("\n--- Criar Login de Usuário ---");
+    private static void criarUsuario() {
+        try {
+            System.out.print("Digite o nome completo do usuário: ");
+            String nomeUsuario = scanner.nextLine();
 
-        System.out.print("Nome completo: ");
-        String nomeCompleto = scanner.nextLine();
+            System.out.print("Digite o CPF: ");
+            String cpf = scanner.nextLine();
+            ValidadorEntidades.validarCpf(cpf);
 
-        System.out.print("CPF: ");
-        String cpf = scanner.nextLine();
+            System.out.print("Digite a CNH: ");
+            String cnh = scanner.nextLine();
+            ValidadorEntidades.validarCnh(cnh);
 
-        System.out.print("CNH: ");
-        String cnh = scanner.nextLine();
+            System.out.print("Digite seu gênero: ");
+            String genero = scanner.nextLine();
+            ValidadorEntidades.validarGenero(genero);
 
-        System.out.print("Email: ");
-        String email = scanner.nextLine();
+            System.out.print("Digite seu telefone: ");
+            String telefone = scanner.nextLine();
+            ValidadorEntidades.validarTelefone(telefone);
 
-        System.out.print("Senha: ");
-        String senha = scanner.nextLine();
+            System.out.print("Digite sua data de nascimento (yyyy-MM-dd): ");
+            LocalDate dataNascimento = LocalDate.parse(scanner.nextLine());
+            ValidadorEntidades.validarDataNascimento(dataNascimento);
 
-        Login login = new Login();
-        login.setEmail(email);
-        login.setSenha(senha);
+            System.out.println("Digite o Estado: ");
+            String estado = scanner.nextLine();
+            ValidadorEntidades.validarEstado(estado);
 
-        Usuario usuario = new Usuario();
-        usuario.setNomeUsuario(nomeCompleto);
-        usuario.setCpf(cpf);
-        usuario.setCnh(cnh);
-        usuario.setLogin(login);
+            System.out.println("Digite a cidade: ");
+            String cidade = scanner.nextLine();
 
-        repositorioUsuario.adicionar(usuario);
-        System.out.println("Usuário criado com sucesso!");
-        logger.info("Usuário criado: " + nomeCompleto + " (CPF: " + cpf + ")");
+            System.out.println("Digite o bairro: ");
+            String bairro = scanner.nextLine();
+
+            System.out.println("Digite o complemento: ");
+            String complemento = scanner.nextLine();
+
+            System.out.println("Digite o número: ");
+            String numero = scanner.nextLine();
+            ValidadorEntidades.validarNumero(numero);
+
+            System.out.println("Digite o CEP: ");
+            String cep = scanner.nextLine();
+            ValidadorEntidades.validarCep(cep);
+
+            System.out.print("Digite o email: ");
+            String email = scanner.nextLine();
+            ValidadorEntidades.validarEmail(email);
+
+            System.out.print("Digite a senha: ");
+            String senha = scanner.nextLine();
+            ValidadorEntidades.validarSenha(senha);
+
+            Login login = new Login(email, senha);
+            int loginId = repositorioLogin.adicionar(login);
+
+            Endereco endereco = new Endereco(numero, complemento, estado, bairro, cidade, cep);
+            int enderecoId = repositorioEndereco.adicionar(endereco);
+
+            Usuario usuario = new Usuario(nomeUsuario, cpf, cnh, genero, telefone, dataNascimento, loginId, enderecoId);
+            repositorioUsuario.adicionar(usuario);
+
+            System.out.println("Usuário criado com sucesso!");
+            logger.info("Usuário cadastrado: " + nomeUsuario + " (CPF: " + cpf + ")");
+        } catch (DateTimeParseException e) {
+            System.out.println("Erro: data de nascimento inválida. Por favor, use o formato yyyy-MM-dd.");
+        } catch (IllegalArgumentException e) {
+            System.out.println("Erro ao criar usuário: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Erro inesperado: " + e.getMessage());
+        }
     }
+
 
     private void loginUsuario() {
         System.out.println("\n--- Login de Usuário ---");
@@ -113,13 +162,18 @@ public class MenuOperacional {
         System.out.print("Senha: ");
         String senha = scanner.nextLine();
 
-        Usuario usuario = repositorioUsuario.buscarPorLogin(email, senha);
-        if (usuario != null && usuario.getLogin().getSenha().equals(senha)) {
-            System.out.println("Login de usuário efetuado com sucesso!");
-            logger.info("Usuário logado com sucesso: " + usuario.getNomeUsuario());
-        } else {
-            System.out.println("Login ou senha inválidos.");
-            logger.warn("Tentativa de login falhou para: " + email);
+        try {
+            ValidadorEntidades.validarEmail(email);
+            Usuario usuario = repositorioUsuario.buscarPorLogin(email, senha);
+            if (usuario != null && usuario.getLogin().getSenha().equals(senha)) {
+                System.out.println("Login de usuário efetuado com sucesso!");
+                logger.info("Usuário logado com sucesso: " + usuario.getNomeUsuario());
+            } else {
+                System.out.println("Login ou senha inválidos.");
+                logger.warn("Tentativa de login falhou para: " + email);
+            }
+        } catch (IllegalArgumentException e) {
+            System.out.println("Erro: " + e.getMessage());
         }
     }
 
@@ -131,18 +185,22 @@ public class MenuOperacional {
 
         System.out.print("CNPJ: ");
         String cnpj = scanner.nextLine();
+        ValidadorEntidades.validarCnpj(cnpj);
 
         System.out.print("Especialidade: ");
         String especialidade = scanner.nextLine();
 
         System.out.print("Telefone: ");
         String telefone = scanner.nextLine();
+        ValidadorEntidades.validarTelefone(telefone);
 
         System.out.print("Email: ");
         String email = scanner.nextLine();
+        ValidadorEntidades.validarEmail(email);
 
         System.out.print("Senha: ");
         String senha = scanner.nextLine();
+        ValidadorEntidades.validarSenha(senha);
 
         Login login = new Login();
         login.setEmail(email);
@@ -162,14 +220,19 @@ public class MenuOperacional {
         System.out.print("Senha: ");
         String senha = scanner.nextLine();
 
-        Oficina oficina = repositorioOficina.buscarPorLogin(email, senha);
+        try {
+            ValidadorEntidades.validarEmail(email);
+            Oficina oficina = repositorioOficina.buscarPorLogin(email, senha);
 
-        if (oficina == null || oficina.getLogin() == null || !oficina.getLogin().getSenha().equals(senha)) {
-            System.out.println("Login ou senha inválidos.");
-            logger.warn("Tentativa de login falhou para oficina: " + email);
-        } else {
-            System.out.println("Login de oficina efetuado com sucesso!");
-            logger.info("Oficina logada com sucesso: " + oficina.getNomeOficina());
+            if (oficina == null || oficina.getLogin() == null || !oficina.getLogin().getSenha().equals(senha)) {
+                System.out.println("Login ou senha inválidos.");
+                logger.warn("Tentativa de login falhou para oficina: " + email);
+            } else {
+                System.out.println("Login de oficina efetuado com sucesso!");
+                logger.info("Oficina logada com sucesso: " + oficina.getNomeOficina());
+            }
+        } catch (IllegalArgumentException e) {
+            System.out.println("Erro: " + e.getMessage());
         }
     }
 
@@ -182,11 +245,18 @@ public class MenuOperacional {
         System.out.print("Nova Senha: ");
         String novaSenha = scanner.nextLine();
 
-        boolean sucesso = RepositorioLogin.redefinirSenha(email, novaSenha);
-        if (sucesso) {
-            System.out.println("Senha redefinida com sucesso!");
-        } else {
-            System.out.println("Nenhum usuário encontrado com este email.");
+        try {
+            ValidadorEntidades.validarEmail(email);
+            ValidadorEntidades.validarSenha(novaSenha);
+
+            boolean sucesso = repositorioLogin.redefinirSenha(email, novaSenha);
+            if (sucesso) {
+                System.out.println("Senha redefinida com sucesso!");
+            } else {
+                System.out.println("Nenhum usuário encontrado com este email.");
+            }
+        } catch (IllegalArgumentException e) {
+            System.out.println("Erro: " + e.getMessage());
         }
     }
 
@@ -199,12 +269,18 @@ public class MenuOperacional {
         System.out.print("Nova Senha: ");
         String novaSenha = scanner.nextLine();
 
-        boolean sucesso = RepositorioLogin.redefinirSenha(email, novaSenha);
-        if (sucesso) {
-            System.out.println("Senha redefinida com sucesso!");
-        } else {
-            System.out.println("Nenhuma oficina encontrada com este email.");
+        try {
+            ValidadorEntidades.validarEmail(email);
+            ValidadorEntidades.validarSenha(novaSenha);
+
+            boolean sucesso = repositorioLogin.redefinirSenha(email, novaSenha);
+            if (sucesso) {
+                System.out.println("Senha redefinida com sucesso!");
+            } else {
+                System.out.println("Nenhuma oficina encontrada com este email.");
+            }
+        } catch (IllegalArgumentException e) {
+            System.out.println("Erro: " + e.getMessage());
         }
     }
-
 }

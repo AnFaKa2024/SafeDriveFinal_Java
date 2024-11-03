@@ -6,12 +6,8 @@ import javax.validation.constraints.Pattern;
 import java.util.Objects;
 
 @Entity
-@Table(name = "T_SafeDrive_ENDERECO")
+@Table(name = "T_FGK_ENDERECO")
 public class Endereco extends EntidadeBase {
-
-    @NotBlank(message = "O logradouro é obrigatório.")
-    @Column(name = "logradouro", nullable = false)
-    private String logradouro;
 
     @NotBlank(message = "O número é obrigatório.")
     @Column(name = "numero", nullable = false)
@@ -38,24 +34,15 @@ public class Endereco extends EntidadeBase {
     private String cep;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Geração automática de ID
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_endereco")
     private int id;
 
     public Endereco() {}
 
-    public Endereco(String logradouro, String numero, String complemento, String bairro, String cidade, String estado, String cep) {
-        this.logradouro = logradouro;
-        this.numero = numero;
-        this.complemento = complemento;
-        this.bairro = bairro;
-        this.cidade = cidade;
-        this.estado = estado;
-        this.cep = cep;
-    }
-
-    public Endereco(int id, boolean deletado, String logradouro, String numero, String complemento, String bairro, String cidade, String estado, String cep) {
+    public Endereco(int id, boolean deletado, String numero, String complemento, String bairro, String cidade, String estado, String cep) {
         super(id, deletado);
-        this.logradouro = logradouro;
+        this.id = id;
         this.numero = numero;
         this.complemento = complemento;
         this.bairro = bairro;
@@ -64,13 +51,13 @@ public class Endereco extends EntidadeBase {
         this.cep = cep;
     }
 
-    // Getters e Setters
-    public String getLogradouro() {
-        return logradouro;
-    }
-
-    public void setLogradouro(String logradouro) {
-        this.logradouro = logradouro;
+    public Endereco(String numero, String complemento, String estado, String bairro, String cidade, String cep) {
+        this.numero = numero;
+        this.complemento = complemento;
+        this.bairro = bairro;
+        this.cidade = cidade;
+        this.estado = estado;
+        this.cep = cep;
     }
 
     public String getNumero() {
@@ -121,10 +108,18 @@ public class Endereco extends EntidadeBase {
         this.cep = cep;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
     @Override
     public String toString() {
         return String.format("Endereco: %s, %s, %s, %s - %s, %s, %s",
-                logradouro, numero, complemento != null ? complemento : "",
+                numero, complemento != null ? complemento : "",
                 bairro, cidade, estado, cep);
     }
 
@@ -133,8 +128,7 @@ public class Endereco extends EntidadeBase {
         if (this == o) return true;
         if (!(o instanceof Endereco)) return false;
         Endereco endereco = (Endereco) o;
-        return Objects.equals(logradouro, endereco.logradouro) &&
-                Objects.equals(numero, endereco.numero) &&
+        return  Objects.equals(numero, endereco.numero) &&
                 Objects.equals(complemento, endereco.complemento) &&
                 Objects.equals(bairro, endereco.bairro) &&
                 Objects.equals(cidade, endereco.cidade) &&
@@ -144,14 +138,6 @@ public class Endereco extends EntidadeBase {
 
     @Override
     public int hashCode() {
-        return Objects.hash(logradouro, numero, complemento, bairro, cidade, estado, cep);
-    }
-
-    public void setId(int id) {
-        this.id = Math.toIntExact(id);
-    }
-
-    public int getId() {
-        return Math.toIntExact(id);
+        return Objects.hash(numero, complemento, bairro, cidade, estado, cep);
     }
 }

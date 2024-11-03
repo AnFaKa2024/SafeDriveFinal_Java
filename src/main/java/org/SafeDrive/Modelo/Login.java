@@ -4,14 +4,21 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.util.Objects;
 
 @Entity
-@Table(name = "T_SafeDrive_LOGIN")
+@Table(name = "T_FGK_LOGIN")
 public class Login extends EntidadeBase {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_login")
+    private int id;
 
     @Column(name = "email", nullable = false, unique = true)
     @NotBlank(message = "O email é obrigatório.")
@@ -22,8 +29,6 @@ public class Login extends EntidadeBase {
     @NotBlank(message = "A senha é obrigatória.")
     @Size(min = 6, message = "A senha deve ter pelo menos 6 caracteres.")
     private String senha;
-    @Id
-    private Long id;
 
     public Login() {}
 
@@ -34,8 +39,17 @@ public class Login extends EntidadeBase {
 
     public Login(int id, boolean deletado, String email, String senha) {
         super(id, deletado);
+        this.id = id;
         this.email = email;
         this.senha = senha;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getEmail() {
@@ -76,13 +90,5 @@ public class Login extends EntidadeBase {
     @Override
     public int hashCode() {
         return Objects.hash(email, senha);
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public int getId() {
-        return Math.toIntExact(id);
     }
 }

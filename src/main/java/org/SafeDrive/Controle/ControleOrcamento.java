@@ -16,19 +16,20 @@ public class ControleOrcamento {
         this.repositorioOrcamento = new RepositorioOrcamento();
     }
 
-    public void adicionarOrcamento(double maoDeObra, double pecas) {
-        Orcamento orcamento = new Orcamento();
+    public void adicionarOrcamento(int id, double maoDeObra, double guincho, String tipo) {
+        Orcamento orcamento = new Orcamento(id, false, maoDeObra, 0.0, tipo);
         orcamento.setMaoDeObra(maoDeObra);
-        orcamento.setPecas(pecas);
+        orcamento.setGuincho(guincho);
+        orcamento.setTipo(tipo);
 
         repositorioOrcamento.adicionar(orcamento);
     }
 
-    public void atualizarOrcamento(int id, double maoDeObra, double pecas) {
+    public void atualizarOrcamento(int id, double maoDeObra, double guincho, double pecas) {
         Orcamento orcamento = repositorioOrcamento.buscarPorId(id);
         if (orcamento != null) {
             orcamento.setMaoDeObra(maoDeObra);
-            orcamento.setPecas(pecas);
+            orcamento.setGuincho(guincho);
             repositorioOrcamento.atualizar(orcamento);
         } else {
             logger.error("Orçamento com ID " + id + " não encontrado.");
@@ -45,7 +46,11 @@ public class ControleOrcamento {
     }
 
     public Orcamento buscarOrcamentoPorId(int id) {
-        return repositorioOrcamento.buscarPorId(id);
+        Orcamento orcamento = repositorioOrcamento.buscarPorId(id);
+        if (orcamento == null) {
+            logger.error("Orçamento com ID " + id + " não encontrado.");
+        }
+        return orcamento;
     }
 
     public List<Orcamento> listarOrcamentos() {

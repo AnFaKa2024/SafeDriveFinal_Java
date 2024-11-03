@@ -5,63 +5,57 @@ import javax.validation.constraints.Min;
 import java.util.Objects;
 
 @Entity
-@Table(name = "T_SafeDrive_ORCAMENTO")
+@Table(name = "T_FGK_ORCAMENTO")
 public class Orcamento extends EntidadeBase {
 
     @Min(value = 0, message = "O valor da mão de obra não pode ser negativo.")
     @Column(name = "mao_de_obra", nullable = false)
     private double maoDeObra;
 
-    @Min(value = 0, message = "O valor das peças não pode ser negativo.")
-    @Column(name = "pecas")
-    private Double pecas;
+    @Column(name = "guincho", nullable = false)
+    private double guincho = 0;
 
     @Transient
     private double total;
 
     @OneToOne
-    @JoinColumn(name = "id_oficina", referencedColumnName = "id_oficina")
+    @JoinColumn(name = "id_oficina", referencedColumnName = "id")
     private Oficina oficina;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "tipo_orcamento", nullable = false)
+    @Column(name = "tipo", nullable = false)
     private String tipo;
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    public Orcamento() {
-    }
+    public Orcamento() {}
 
-    public Orcamento(int id, boolean deletado, double maoDeObra, Double pecas, double total, Oficina oficina,
-                     String tipo, int id1) {
-        super(id, deletado);
+    public Orcamento(double maoDeObra, double guincho, Oficina oficina, String tipo) {
         this.maoDeObra = maoDeObra;
-        this.pecas = pecas;
-        this.total = total;
+        this.guincho = guincho;
         this.oficina = oficina;
         this.tipo = tipo;
-        this.id = id1;
-    }
-
-    public Orcamento(double maoDeObra, Double pecas, double total, Oficina oficina, String tipo, int id) {
-        this.maoDeObra = maoDeObra;
-        this.pecas = pecas;
-        this.total = total;
-        this.oficina = oficina;
-        this.tipo = tipo;
-        this.id = id;
-    }
-
-    public Orcamento(int id, boolean deletado, double maoDeObra, Double pecas, Oficina oficina) {
-        super(id, deletado);
-        this.maoDeObra = maoDeObra;
-        this.pecas = pecas;
-        this.oficina = oficina;
         this.total = calcularTotal();
     }
 
-    public Orcamento(int id, boolean deletado, double maoDeObra, double pecas, Object tipo, String tipoOrcamento) {
+    public Orcamento(int id, boolean deletado, double maoDeObra, double guincho, String tipo) {
+    }
+
+    // Enum para representar os tipos de orçamento
+    public enum TipoOrcamento {
+        BASICO, COMPLETO, PREMIUM
+    }
+
+    // Getters e Setters
+    public double getGuincho() {
+        return guincho;
+    }
+
+    public void setGuincho(double guincho) {
+        this.guincho = guincho;
+        this.total = calcularTotal();
     }
 
     public double getMaoDeObra() {
@@ -73,17 +67,8 @@ public class Orcamento extends EntidadeBase {
         this.total = calcularTotal();
     }
 
-    public Double getPecas() {
-        return pecas;
-    }
-
-    public void setPecas(Double pecas) {
-        this.pecas = pecas;
-        this.total = calcularTotal();
-    }
-
-    public void setTotal(double total) {
-        this.total = total;
+    public double getTotal() {
+        return total;
     }
 
     public String getTipo() {
@@ -94,10 +79,6 @@ public class Orcamento extends EntidadeBase {
         this.tipo = tipo;
     }
 
-    public double getTotal() {
-        return total;
-    }
-
     public Oficina getOficina() {
         return oficina;
     }
@@ -106,23 +87,30 @@ public class Orcamento extends EntidadeBase {
         this.oficina = oficina;
     }
 
-    // Método para calcular o total localmente, sem depender do banco de dados
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    // Método para calcular o total
     private double calcularTotal() {
-        return maoDeObra + (pecas != null ? pecas : 0);
+        return maoDeObra + guincho;
     }
 
     @Override
     public String toString() {
         return "Orcamento{" +
-                "id=" + getId() +
-                ", maoDeObra=" + maoDeObra +
-                ", pecas=" + pecas +
+                "maoDeObra=" + maoDeObra +
+                ", guincho=" + guincho +
                 ", total=" + total +
-                ", oficina=" + (oficina != null ? oficina.getNomeOficina() : "N/A") +
+                ", oficina=" + oficina +
                 ", tipo=" + tipo +
+                ", id=" + id +
                 '}';
     }
-
 
     @Override
     public boolean equals(Object o) {
@@ -130,20 +118,13 @@ public class Orcamento extends EntidadeBase {
         if (!(o instanceof Orcamento)) return false;
         Orcamento orcamento = (Orcamento) o;
         return Double.compare(orcamento.maoDeObra, maoDeObra) == 0 &&
-                Objects.equals(pecas, orcamento.pecas) &&
-                Objects.equals(oficina, orcamento.oficina);
+                Double.compare(orcamento.guincho, guincho) == 0 &&
+                Objects.equals(oficina, orcamento.oficina) &&
+                tipo == orcamento.tipo;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(maoDeObra, pecas, oficina);
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public int getId() {
-        return Math.toIntExact(id);
+        return Objects.hash(maoDeObra, guincho, oficina, tipo);
     }
 }

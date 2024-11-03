@@ -10,8 +10,8 @@ import java.sql.SQLException;
 public class ConexaoBanco {
 
     private static final String URL = "jdbc:oracle:thin:@oracle.fiap.com.br:1521:ORCL";
-    private static final String USUARIO = "rm554556";
-    private static final String SENHA = "181085";
+    private static final String USUARIO = "rm558274";
+    private static final String SENHA = "150805";
 
     private static final Logger logger = LogManager.getLogger(ConexaoBanco.class);
 

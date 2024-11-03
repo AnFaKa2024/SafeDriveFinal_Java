@@ -16,6 +16,7 @@ import static org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory.
 public class Main {
 
     private static final Logger logger = LogManager.getLogger(Main.class);
+    private static final int DEFAULT_PORT = 9998;
 
     private static int getPort() {
         String httpPort = System.getProperty("jersey.test.port");
@@ -23,10 +24,10 @@ public class Main {
             try {
                 return Integer.parseInt(httpPort);
             } catch (NumberFormatException e) {
-                logger.warn("Número de porta inválido fornecido, voltando para a porta padrão  " + 9998);
+                logger.warn("Número de porta inválido fornecido, utilizando a porta padrão " + DEFAULT_PORT);
             }
         }
-        return 9998;
+        return DEFAULT_PORT;
     }
 
     private static URI getBaseURI() {
@@ -44,12 +45,11 @@ public class Main {
         return createHttpServer(BASE_URI, resourceConfig, true);
     }
 
-
     public static void main(String[] args) {
         HttpServer httpServer = null;
         try {
             httpServer = startServer();
-            logger.info(String.format("O aplicativo Jersey começou com WADL disponível em %sapplication.wadl\nAperte Enter para pará-lo...", BASE_URI));
+            logger.info(String.format("O aplicativo Jersey começou com WADL disponível em %sapplication.wadl\nPressione Enter para pará-lo...", BASE_URI));
 
             Menu menu = new Menu();
             menu.oficinaOuUsuario();
@@ -57,11 +57,13 @@ public class Main {
             System.in.read();
         } catch (IOException e) {
             logger.error("IOException ocorreu ao iniciar o servidor: " + e.getMessage(), e);
+        } catch (Exception e) {
+            logger.error("Ocorreu um erro inesperado: " + e.getMessage(), e);
         } finally {
             if (httpServer != null) {
                 httpServer.shutdownNow();
             }
-            logger.info("SaveDrive Finalizado.");
+            logger.info("SafeDrive Finalizado.");
         }
     }
 }

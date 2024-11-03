@@ -22,18 +22,30 @@ public class MenuOficina {
             opcao = lerOpcao();
 
             switch (opcao) {
-                case 1 -> atualizarOficina();
-                case 2 -> removerOficina();
-                case 3 -> adicionarEndereco();
-                case 4 -> atualizarEndereco();
-                case 5 -> listarEnderecos();
-                case 6 -> removerEndereco();
-                case 7 -> definirMaoDeObra();
-                case 8 -> atualizarMaoDeObra();
-                case 9 -> listarMaoDeObra();
-                case 10 -> removerMaoDeObra();
-                case 0 -> System.out.println("Saindo do sistema...");
-                default -> System.out.println("Opção inválida, tente novamente.");
+                case 1:
+                    atualizarOficina();
+                case 2:
+                    removerOficina();
+                case 3:
+                    adicionarEndereco();
+                case 4:
+                    atualizarEndereco();
+                case 5:
+                    listarEnderecos();
+                case 6:
+                    removerEndereco();
+                case 7:
+                    definirMaoDeObra();
+                case 8:
+                    atualizarMaoDeObra();
+                case 9:
+                    listarMaoDeObra();
+                case 10:
+                    removerMaoDeObra();
+                case 0:
+                    System.out.println("Saindo do sistema...");
+                default:
+                    System.out.println("Opção inválida, tente novamente.");
             }
         } while (opcao != 0);
     }
@@ -59,7 +71,7 @@ public class MenuOficina {
             return scanner.nextInt();
         } catch (Exception e) {
             System.out.println("Entrada inválida. Por favor, insira um número.");
-            scanner.nextLine(); // Limpa o scanner
+            scanner.nextLine();
             return -1;
         }
     }
@@ -97,9 +109,6 @@ public class MenuOficina {
     }
 
     private void adicionarEndereco() {
-        System.out.print("Logradouro: ");
-        String logradouro = scanner.nextLine();
-
         System.out.print("Número: ");
         String numero = scanner.nextLine();
 
@@ -118,7 +127,7 @@ public class MenuOficina {
         System.out.print("CEP: ");
         String cep = scanner.nextLine();
 
-        Endereco endereco = new Endereco(logradouro, numero, complemento, bairro, cidade, estado, cep);
+        Endereco endereco = new Endereco(numero, complemento, bairro, cidade, estado, cep);
         repositorioEndereco.adicionar(endereco);
         System.out.println("Endereço adicionado com sucesso!");
     }
@@ -130,9 +139,6 @@ public class MenuOficina {
 
         Endereco endereco = repositorioEndereco.buscarPorId(id);
         if (endereco != null) {
-            System.out.print("Novo logradouro: ");
-            endereco.setLogradouro(scanner.nextLine());
-
             System.out.print("Novo número: ");
             endereco.setNumero(scanner.nextLine());
 
@@ -180,6 +186,10 @@ public class MenuOficina {
     }
 
     private void definirMaoDeObra() {
+        System.out.print("ID do orçamento: ");
+        int id = scanner.nextInt();
+        scanner.nextLine();
+
         System.out.print("Digite o valor da mão-de-obra: ");
         double maoDeObra = scanner.nextDouble();
         scanner.nextLine();
@@ -187,11 +197,7 @@ public class MenuOficina {
         System.out.print("Digite o tipo de orçamento: ");
         String tipo = scanner.nextLine();
 
-        Orcamento orcamento = new Orcamento();
-        orcamento.setMaoDeObra(maoDeObra);
-        orcamento.setPecas(0.0); // Valor da peça sempre zero, será definido em Python
-        orcamento.setTipo(tipo);
-
+        Orcamento orcamento = new Orcamento(id, false, maoDeObra, 0.0, tipo);
         repositorioOrcamento.adicionar(orcamento);
         System.out.println("Mão-de-obra definida com sucesso!");
     }
@@ -211,7 +217,6 @@ public class MenuOficina {
             String novoTipo = scanner.nextLine();
 
             orcamento.setMaoDeObra(novaMaoDeObra);
-            orcamento.setPecas(0.0); // Valor da peça sempre zero, será definido em Python
             orcamento.setTipo(novoTipo);
 
             repositorioOrcamento.atualizar(orcamento);

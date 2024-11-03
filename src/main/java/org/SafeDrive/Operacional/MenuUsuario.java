@@ -116,8 +116,6 @@ public class MenuUsuario {
 
     private static void adicionarEndereco() {
         Endereco endereco = new Endereco();
-        System.out.print("Logradouro: ");
-        endereco.setLogradouro(scanner.nextLine());
         System.out.print("Número: ");
         endereco.setNumero(scanner.nextLine());
         System.out.print("Complemento: ");
@@ -138,12 +136,10 @@ public class MenuUsuario {
     private static void atualizarEndereco() {
         System.out.print("Digite o ID do endereço a ser atualizado: ");
         int id = scanner.nextInt();
-        scanner.nextLine(); // Limpar o buffer
+        scanner.nextLine();
 
         Endereco endereco = repositorioEndereco.buscarPorId(id);
         if (endereco != null) {
-            System.out.print("Novo Logradouro: ");
-            endereco.setLogradouro(scanner.nextLine());
             System.out.print("Novo Número: ");
             endereco.setNumero(scanner.nextLine());
             System.out.print("Novo Complemento: ");

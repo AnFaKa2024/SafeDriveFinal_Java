@@ -1,5 +1,7 @@
 package org.SafeDrive.Servico;
 
+import org.SafeDrive.Modelo.Login;
+
 import java.time.LocalDate;
 import java.util.Scanner;
 import java.util.regex.Pattern;
@@ -8,21 +10,36 @@ public class ValidadorEntidades {
 
     private static final Scanner scanner = new Scanner(System.in);
 
-    private static String obterEntradaComConfirmacao(String mensagem) {
-        String entrada;
-        while (true) {
-            System.out.print(mensagem);
-            entrada = scanner.nextLine().trim();
-            System.out.println("Você digitou: " + entrada);
-            System.out.print("Está correto? (ok para confirmar, qualquer outra tecla para corrigir): ");
-            String confirmacao = scanner.nextLine();
-            if (confirmacao.equalsIgnoreCase("ok")) {
-                break;
-            } else {
-                System.out.println("Por favor, digite novamente.");
-            }
+    private static final Pattern EMAIL_PATTERN = Pattern.compile(
+            "^[A-Za-z0-9+_.-]+@(.+)$"
+    );
+
+    public static boolean validarLogin(Login login) {
+        if (login == null) {
+            System.out.println("Login inválido: objeto Login é nulo.");
+            return false;
         }
-        return entrada;
+
+        if (login.getEmail() == null || login.getEmail().isEmpty()) {
+            System.out.println("Login inválido: o email não pode ser nulo ou vazio.");
+            return false;
+        }
+
+        if (!EMAIL_PATTERN.matcher(login.getEmail()).matches()) {
+            System.out.println("Login inválido: o formato do email é inválido.");
+            return false;
+        }
+
+        if (login.getSenha() == null || login.getSenha().isEmpty()) {
+            System.out.println("Login inválido: a senha não pode ser nula ou vazia.");
+            return false;
+        }
+
+        if (login.getSenha().length() < 6) {
+            System.out.println("Login inválido: a senha deve ter pelo menos 6 caracteres.");
+            return false;
+        }
+        return false;
     }
 
     public static boolean validarNome(String nome) {
@@ -35,12 +52,36 @@ public class ValidadorEntidades {
 
     public static boolean validarCpf(String cpf) {
         String cpfNumerico = cpf.replaceAll("[^\\d]", "");
-        if (cpfNumerico.length() != 11 || !Pattern.matches("\\d{11}", cpfNumerico)) {
-            System.out.println("CPF inválido. Deve conter 11 dígitos numéricos.");
-            return false;
+
+        if (cpfNumerico.length() != 11) {
+            throw new IllegalArgumentException("CPF inválido. Deve conter exatamente 11 dígitos numéricos.");
         }
-        // Adicionar lógica de validação de CPF se necessário
+
+        if (!isCpfValido(cpfNumerico)) {
+            throw new IllegalArgumentException("CPF inválido. O CPF não é válido de acordo com o algoritmo.");
+        }
+
         return true;
+    }
+
+    private static boolean isCpfValido(String cpf) {
+        int soma = 0;
+        int digito1, digito2;
+
+        for (int i = 0; i < 9; i++) {
+            soma += (10 - i) * Character.getNumericValue(cpf.charAt(i));
+        }
+        int resto = soma % 11;
+        digito1 = (resto < 2) ? 0 : 11 - resto;
+
+        soma = 0;
+        for (int i = 0; i < 10; i++) {
+            soma += (11 - i) * Character.getNumericValue(cpf.charAt(i));
+        }
+        resto = soma % 11;
+        digito2 = (resto < 2) ? 0 : 11 - resto;
+
+        return (digito1 == Character.getNumericValue(cpf.charAt(9)) && digito2 == Character.getNumericValue(cpf.charAt(10)));
     }
 
     public static boolean validarCnpj(String cnpj) {
@@ -150,6 +191,41 @@ public class ValidadorEntidades {
             return false;
         }
         return true;
+    }
+
+    public static void validarSenha(String senha) {
+        // Critérios de validação
+        int minLength = 8; // Mínimo de 8 caracteres
+        boolean hasUppercase = false;
+        boolean hasLowercase = false;
+        boolean hasDigit = false;
+        boolean hasSpecialChar = false;
+
+        if (senha.length() < minLength) {
+            throw new IllegalArgumentException("A senha deve ter pelo menos " + minLength + " caracteres.");
+        }
+
+        for (char c : senha.toCharArray()) {
+            if (Character.isUpperCase(c)) {
+                hasUppercase = true;
+            } else if (Character.isLowerCase(c)) {
+                hasLowercase = true;
+            } else if (Character.isDigit(c)) {
+                hasDigit = true;
+            } else if (!Character.isLetterOrDigit(c)) {
+                hasSpecialChar = true;
+            }
+        }
+
+        StringBuilder msgErro = new StringBuilder("A senha deve conter:");
+        if (!hasUppercase) msgErro.append("\n- Pelo menos uma letra maiúscula.");
+        if (!hasLowercase) msgErro.append("\n- Pelo menos uma letra minúscula.");
+        if (!hasDigit) msgErro.append("\n- Pelo menos um dígito.");
+        if (!hasSpecialChar) msgErro.append("\n- Pelo menos um caractere especial.");
+
+        if (!hasUppercase || !hasLowercase || !hasDigit || !hasSpecialChar) {
+            throw new IllegalArgumentException(msgErro.toString());
+        }
     }
 
     public static boolean validarCep(String cep) {

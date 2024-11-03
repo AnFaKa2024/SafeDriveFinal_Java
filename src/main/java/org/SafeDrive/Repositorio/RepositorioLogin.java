@@ -14,31 +14,44 @@ public class RepositorioLogin implements RepositorioGenerico<Login> {
     private static final Logger logger = LogManager.getLogger(RepositorioLogin.class);
 
     @Override
-    public void adicionar(Login login) {
-        String sql = "INSERT INTO T_AFK_LOGIN (email, senha) VALUES (?, ?)";
+    public int adicionar(Login login) {
+        String sql = "INSERT INTO T_FGK_LOGIN (email, senha) VALUES (?, ?)";
+        int loginId = -1;
 
         try (Connection conexao = ConexaoBanco.getConnection();
              PreparedStatement stmt = conexao.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
+            if (login.getEmail() == null || login.getSenha() == null) {
+                logger.error("Email ou senha não podem ser nulos.");
+                return loginId;
+            }
             stmt.setString(1, login.getEmail());
             stmt.setString(2, login.getSenha());
 
-            stmt.executeUpdate();
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected == 0) {
+                logger.error("Falha ao adicionar login, nenhuma linha afetada.");
+                return loginId;
+            }
 
             try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
-                    login.setId(generatedKeys.getInt(1));
-                    logger.info("Login cadastrado com sucesso com ID: " + login.getId());
+                    loginId = generatedKeys.getInt(1);
+                    login.setId(loginId); // Define o ID gerado no objeto login
+                    logger.info("Login cadastrado com sucesso com ID: " + loginId);
+                } else {
+                    logger.error("Falha ao adicionar login, nenhum ID gerado.");
                 }
             }
         } catch (SQLException e) {
-            logger.error("Erro ao adicionar login: " + e.getMessage());
+            logger.error("Erro ao adicionar login: " + e.getMessage(), e);
         }
+        return loginId;
     }
 
     @Override
     public void atualizar(Login login) {
-        String sql = "UPDATE T_AFK_LOGIN SET email = ?, senha = ? WHERE id_login = ?";
+        String sql = "UPDATE T_FGK_LOGIN SET email = ?, senha = ? WHERE id_login = ?";
 
         try (Connection conexao = ConexaoBanco.getConnection();
              PreparedStatement stmt = conexao.prepareStatement(sql)) {
@@ -47,16 +60,20 @@ public class RepositorioLogin implements RepositorioGenerico<Login> {
             stmt.setString(2, login.getSenha());
             stmt.setInt(3, login.getId());
 
-            stmt.executeUpdate();
-            logger.info("Login atualizado: " + login.getEmail());
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected > 0) {
+                logger.info("Login atualizado com sucesso para o email: " + login.getEmail());
+            } else {
+                logger.warn("Nenhum login encontrado para atualizar com ID: " + login.getId());
+            }
         } catch (SQLException e) {
-            logger.error("Erro ao atualizar login: " + e.getMessage());
+            logger.error("Erro ao atualizar login: " + e.getMessage(), e);
         }
     }
 
     @Override
     public void remover(int id) {
-        String sql = "DELETE FROM T_AFK_LOGIN WHERE id_login = ?";
+        String sql = "DELETE FROM T_FGK_LOGIN WHERE id_login = ?";
 
         try (Connection conexao = ConexaoBanco.getConnection();
              PreparedStatement stmt = conexao.prepareStatement(sql)) {
@@ -65,36 +82,38 @@ public class RepositorioLogin implements RepositorioGenerico<Login> {
             int rowsAffected = stmt.executeUpdate();
 
             if (rowsAffected > 0) {
-                logger.info("Login removido com ID: " + id);
+                logger.info("Login removido com sucesso com ID: " + id);
             } else {
                 logger.warn("Nenhum login encontrado para remover com ID: " + id);
             }
         } catch (SQLException e) {
-            logger.error("Erro ao remover login com ID " + id + ": " + e.getMessage());
+            logger.error("Erro ao remover login com ID " + id + ": " + e.getMessage(), e);
         }
     }
 
-
     @Override
     public Login buscarPorId(int id) {
-        String sql = "SELECT * FROM T_AFK_LOGIN WHERE id_login = ?";
+        String sql = "SELECT * FROM T_FGK_LOGIN WHERE id_login = ?";
 
         try (Connection conexao = ConexaoBanco.getConnection();
              PreparedStatement stmt = conexao.prepareStatement(sql)) {
 
             stmt.setInt(1, id);
-            ResultSet rs = stmt.executeQuery();
 
-            if (rs.next()) {
-                return new Login(
-                        rs.getInt("id_login"),
-                        false,
-                        rs.getString("email"),
-                        rs.getString("senha")
-                );
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return new Login(
+                            rs.getInt("id_login"),
+                            false,
+                            rs.getString("email"),
+                            rs.getString("senha")
+                    );
+                } else {
+                    logger.warn("Nenhum login encontrado com ID: " + id);
+                }
             }
         } catch (SQLException e) {
-            logger.error("Erro ao buscar login por ID: " + e.getMessage());
+            logger.error("Erro ao buscar login por ID " + id + ": " + e.getMessage(), e);
         }
         return null;
     }
@@ -102,7 +121,7 @@ public class RepositorioLogin implements RepositorioGenerico<Login> {
     @Override
     public List<Login> listar() {
         List<Login> logins = new ArrayList<>();
-        String sql = "SELECT * FROM T_AFK_LOGIN";
+        String sql = "SELECT * FROM T_FGK_LOGIN";
 
         try (Connection conexao = ConexaoBanco.getConnection();
              PreparedStatement stmt = conexao.prepareStatement(sql);
@@ -118,13 +137,13 @@ public class RepositorioLogin implements RepositorioGenerico<Login> {
                 logins.add(login);
             }
         } catch (SQLException e) {
-            logger.error("Erro ao listar logins: " + e.getMessage());
+            logger.error("Erro ao listar logins: " + e.getMessage(), e);
         }
         return logins;
     }
 
     public static boolean redefinirSenha(String email, String novaSenha) {
-        String sql = "UPDATE T_AFK_LOGIN SET senha = ? WHERE email = ?";
+        String sql = "UPDATE T_FGK_LOGIN SET senha = ? WHERE email = ?";
         boolean senhaRedefinida = false;
 
         try (Connection conexao = ConexaoBanco.getConnection();
@@ -142,7 +161,7 @@ public class RepositorioLogin implements RepositorioGenerico<Login> {
                 logger.warn("Nenhum login encontrado para o e-mail: " + email);
             }
         } catch (SQLException e) {
-            logger.error("Erro ao redefinir senha: " + e.getMessage());
+            logger.error("Erro ao redefinir senha para o e-mail " + email + ": " + e.getMessage(), e);
         }
         return senhaRedefinida;
     }
